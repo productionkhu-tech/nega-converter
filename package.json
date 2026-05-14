@@ -1,6 +1,6 @@
 {
   "name": "nega-converter",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "이미지/영상을 화질 손상 없이 네거티브로 변환",
   "main": "main.js",
   "author": "Studio Freewillusion",
@@ -8,7 +8,7 @@
   "scripts": {
     "start": "electron .",
     "build": "electron-builder --win --x64 --publish never",
-    "release": "electron-builder --win --x64 --publish always",
+    "release": "electron-builder --win --x64 --publish always && node build/publish-release.js",
     "icons": "node build/make-icons.js"
   },
   "dependencies": {
@@ -53,7 +53,7 @@
           ]
         }
       ],
-      "artifactName": "${productName}-Setup-${version}.${ext}"
+      "artifactName": "NegaConverter-Setup.${ext}"
     },
     "nsis": {
       "oneClick": true,
