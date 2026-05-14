@@ -8,6 +8,17 @@ Nega_*
 POS_*
 _restored.*
 _ref_*
+테스트*
+
+# 루트에 떨어진 미디어 파일 (build/ 아이콘은 영향 없음)
+/*.mp4
+/*.mov
+/*.mkv
+/*.webm
+/*.png
+/*.jpg
+/*.jpeg
+/*.webp
 
 # OS / editor
 Thumbs.db
