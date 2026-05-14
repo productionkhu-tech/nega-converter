@@ -80,6 +80,12 @@ html, body {
   font-family: 'Segoe UI Variable Display', 'Segoe UI', sans-serif;
   letter-spacing: 0;
 }
+.brand-text h1 .version {
+  font-size: 11px;
+  font-weight: 400;
+  color: var(--text-3);
+  margin-left: 2px;
+}
 .brand-text p {
   margin: 1px 0 0;
   font-size: 12px;

@@ -304,7 +304,12 @@ window.addEventListener('drop', async (e) => {
 });
 
 updateCounters();
-console.log('[boot] electron:', api.electronVersion, 'webUtils available:', api.webUtilsAvailable);
+
+// 앱 버전 표시
+const versionEl = $('#app-version');
+if (versionEl && api.appVersion) versionEl.textContent = 'v' + api.appVersion;
+
+console.log('[boot] electron:', api.electronVersion, 'app:', api.appVersion, 'webUtils available:', api.webUtilsAvailable);
 
 // ===== auto-update overlay =====
 const updateOverlay = $('#update-overlay');

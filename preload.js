@@ -28,6 +28,7 @@ contextBridge.exposeInMainWorld('api', {
   pathForFile,
   webUtilsAvailable: !!(webUtils && webUtils.getPathForFile),
   electronVersion: process.versions.electron || '',
+  appVersion: (() => { try { return ipcRenderer.sendSync('app:version'); } catch { return ''; } })(),
 
   // ===== auto-update events =====
   onUpdateDownloading: (cb) => ipcRenderer.on('update:downloading', () => cb()),

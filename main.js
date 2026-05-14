@@ -323,6 +323,11 @@ ipcMain.handle('shell:openPath', async (_e, p) => {
   try { await shell.openPath(p); return true; } catch { return false; }
 });
 
+// 동기적으로 앱 버전 제공 (렌더러 부팅 시 즉시 표시용)
+ipcMain.on('app:version', (e) => {
+  e.returnValue = app.getVersion();
+});
+
 // ===== 중복 실행 방지 (single instance) =====
 const gotTheLock = app.requestSingleInstanceLock();
 if (!gotTheLock) {
