@@ -1,0 +1,67 @@
+{
+  "name": "nega-converter",
+  "version": "1.0.0",
+  "description": "이미지/영상을 화질 손상 없이 네거티브로 변환",
+  "main": "main.js",
+  "author": "Studio Freewillusion",
+  "license": "UNLICENSED",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder --win --x64 --publish never",
+    "release": "electron-builder --win --x64 --publish always",
+    "icons": "node build/make-icons.js"
+  },
+  "dependencies": {
+    "ffmpeg-static": "^5.2.0",
+    "electron-updater": "^6.3.9"
+  },
+  "devDependencies": {
+    "electron": "^30.0.0",
+    "electron-builder": "^24.13.3",
+    "png-to-ico": "^3.0.1",
+    "sharp": "^0.34.5"
+  },
+  "build": {
+    "appId": "com.studiofreewillusion.negaconverter",
+    "productName": "Nega Converter",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "index.html",
+      "style.css",
+      "renderer.js"
+    ],
+    "asar": true,
+    "asarUnpack": [
+      "node_modules/ffmpeg-static/**"
+    ],
+    "publish": {
+      "provider": "github",
+      "owner": "productionkhu-tech",
+      "repo": "nega-converter"
+    },
+    "win": {
+      "icon": "build/icon.ico",
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "artifactName": "${productName}-Setup-${version}.${ext}"
+    },
+    "nsis": {
+      "oneClick": true,
+      "perMachine": false,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Nega Converter",
+      "deleteAppDataOnUninstall": false
+    }
+  }
+}

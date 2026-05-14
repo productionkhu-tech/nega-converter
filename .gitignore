@@ -1,0 +1,15 @@
+node_modules/
+dist/
+_asarcheck/
+
+# samples & local test artifacts
+샘플/
+Nega_*
+POS_*
+_restored.*
+_ref_*
+
+# OS / editor
+Thumbs.db
+.DS_Store
+*.log

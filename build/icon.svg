@@ -1,0 +1,33 @@
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <clipPath id="rounded">
+      <rect width="512" height="512" rx="112" ry="112"/>
+    </clipPath>
+    <!-- upper-right dark triangle region -->
+    <clipPath id="darkHalf">
+      <polygon points="0,0 512,0 512,512"/>
+    </clipPath>
+    <!-- the image symbol: sun + mountains -->
+    <g id="symbol">
+      <circle cx="186" cy="170" r="54"/>
+      <path d="M 96 392 L 210 248 L 286 340 L 352 256 L 440 392 Z"/>
+    </g>
+  </defs>
+
+  <g clip-path="url(#rounded)">
+    <!-- light base (lower-left) -->
+    <rect width="512" height="512" fill="#f1f1f1"/>
+    <!-- dark half (upper-right) -->
+    <polygon points="0,0 512,0 512,512" fill="#1b1b1b"/>
+
+    <!-- symbol in dark ink — visible over the light half -->
+    <use href="#symbol" fill="#1b1b1b"/>
+    <!-- symbol in light ink — clipped to the dark half, so it reads as a color-inverted overlap -->
+    <g clip-path="url(#darkHalf)">
+      <use href="#symbol" fill="#f1f1f1"/>
+    </g>
+
+    <!-- crisp diagonal divider -->
+    <line x1="0" y1="0" x2="512" y2="512" stroke="#8a8a8a" stroke-width="3" opacity="0.5"/>
+  </g>
+</svg>

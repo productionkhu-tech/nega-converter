@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self'" />
+  <title>Nega Converter</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="app">
+    <header class="topbar">
+      <div class="brand">
+        <div class="logo" aria-hidden="true">
+          <span class="logo-half a"></span>
+          <span class="logo-half b"></span>
+        </div>
+        <div class="brand-text">
+          <h1>Nega Converter</h1>
+          <p>이미지 · 영상을 화질 손상 없이 네거티브로</p>
+        </div>
+      </div>
+      <div class="actions">
+        <button id="btn-pick" class="btn btn-primary">파일 선택</button>
+        <button id="btn-clear" class="btn btn-ghost" title="목록 비우기">목록 비우기</button>
+      </div>
+    </header>
+
+    <main>
+      <div id="dropzone" class="dropzone" tabindex="0">
+        <div class="dz-inner">
+          <div class="dz-icon" aria-hidden="true">⤓</div>
+          <div class="dz-title">여기로 이미지/영상을 끌어다 놓으세요</div>
+          <div class="dz-sub">또는 <span class="link" id="dz-pick">파일 선택</span> · 여러 개 동시 가능 · PNG, JPG, WebP, MP4, MOV, MKV, WebM …</div>
+        </div>
+      </div>
+
+      <section class="status-row">
+        <div class="status-pill">
+          <span class="dot" id="status-dot"></span>
+          <span id="status-text">대기 중</span>
+        </div>
+        <div class="counter">
+          <span id="count-done">0</span> / <span id="count-total">0</span> 완료
+        </div>
+      </section>
+
+      <section class="list-wrap">
+        <ul id="list" class="list" aria-live="polite"></ul>
+        <div id="empty" class="empty">아직 추가된 파일이 없습니다</div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <div class="hint">결과는 <b>원본과 같은 폴더</b>에 저장 · 일반 → <code>Nega_</code> · <code>Nega_</code> → <code>POS_</code> (원본 색, 원본 파일은 안 건드림) · <code>POS_</code> → 다시 <code>Nega_</code></div>
+    </footer>
+  </div>
+
+  <template id="row-template">
+    <li class="row" data-state="pending">
+      <div class="row-icon"></div>
+      <div class="row-body">
+        <div class="row-name" title=""></div>
+        <div class="row-meta">
+          <span class="meta-kind"></span>
+          <span class="meta-sep">·</span>
+          <span class="meta-size"></span>
+          <span class="meta-sep meta-duration-sep">·</span>
+          <span class="meta-duration"></span>
+          <span class="meta-direction" hidden></span>
+        </div>
+        <div class="row-progress">
+          <div class="row-progress-bar"></div>
+        </div>
+        <div class="row-status"></div>
+      </div>
+      <div class="row-actions">
+        <button class="btn-icon btn-reveal" title="폴더에서 보기" hidden>📂</button>
+        <button class="btn-icon btn-cancel" title="취소" hidden>✕</button>
+        <button class="btn-icon btn-remove" title="목록에서 제거">🗑</button>
+      </div>
+    </li>
+  </template>
+
+  <div id="update-overlay" class="update-overlay" hidden>
+    <div class="update-card">
+      <div class="update-spinner" aria-hidden="true"></div>
+      <div class="update-title">업데이트 다운로드 중…</div>
+      <div class="update-bar"><div id="update-bar-fill" class="update-bar-fill"></div></div>
+      <div id="update-pct" class="update-pct">0%</div>
+      <div class="update-note">완료되면 앱이 자동으로 종료되었다가 다시 실행됩니다.</div>
+    </div>
+  </div>
+
+  <script src="renderer.js"></script>
+</body>
+</html>
