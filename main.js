@@ -205,6 +205,18 @@ function createWindow() {
   return win;
 }
 
+const updateState = { dialogOpen: false, downloading: false, listenersBound: false };
+let updateTimer = null;
+
+// 어디서든 호출 가능한 업데이트 확인 (중복 호출/다운로드 중엔 무시)
+function checkForUpdatesNow() {
+  if (isDev) return;
+  if (updateState.dialogOpen || updateState.downloading) return;
+  autoUpdater.checkForUpdates().catch((err) => {
+    console.error('[updater] checkForUpdates failed:', err);
+  });
+}
+
 function setupAutoUpdate(win) {
   if (isDev) {
     console.log('[updater] dev mode — skipping update check');
@@ -214,57 +226,73 @@ function setupAutoUpdate(win) {
   autoUpdater.autoDownload = false;            // 사용자가 확인하기 전엔 다운로드 안 함
   autoUpdater.autoInstallOnAppQuit = true;     // 미설치 업데이트는 종료 시 적용
 
-  let handled = false;
+  // 이벤트 리스너는 한 번만 바인딩 (창 재생성 시 중복 방지)
+  if (!updateState.listenersBound) {
+    updateState.listenersBound = true;
 
-  autoUpdater.on('update-available', async (info) => {
-    if (handled) return;
-    handled = true;
-    const { response } = await dialog.showMessageBox(win, {
-      type: 'info',
-      buttons: ['지금 업데이트', '나중에'],
-      defaultId: 0,
-      cancelId: 1,
-      noLink: true,
-      title: '업데이트 확인',
-      message: `새 버전 ${info.version} 이(가) 있습니다.`,
-      detail: '“지금 업데이트”를 누르면 다운로드 후 앱이 자동으로 종료되었다가 다시 실행됩니다.'
-    });
-    if (response === 0) {
-      win.webContents.send('update:downloading');
-      autoUpdater.downloadUpdate().catch((err) => {
-        win.webContents.send('update:error', String((err && err.message) || err));
-        dialog.showErrorBox('업데이트 실패', String((err && err.message) || err));
+    autoUpdater.on('update-available', async (info) => {
+      if (updateState.dialogOpen || updateState.downloading) return;
+      const w = BrowserWindow.getAllWindows()[0];
+      if (!w) return;
+      updateState.dialogOpen = true;
+      const { response } = await dialog.showMessageBox(w, {
+        type: 'info',
+        buttons: ['지금 업데이트', '나중에'],
+        defaultId: 0,
+        cancelId: 1,
+        noLink: true,
+        title: '업데이트 확인',
+        message: `새 버전 ${info.version} 이(가) 있습니다.`,
+        detail: '“지금 업데이트”를 누르면 다운로드 후 앱이 자동으로 종료되었다가 다시 실행됩니다.'
       });
-    }
-  });
-
-  autoUpdater.on('download-progress', (p) => {
-    win.webContents.send('update:progress', {
-      percent: p.percent || 0,
-      transferred: p.transferred || 0,
-      total: p.total || 0
-    });
-  });
-
-  autoUpdater.on('update-downloaded', () => {
-    win.webContents.send('update:ready');
-    // 조용히 설치(isSilent=true) + 설치 후 자동 재실행(isForceRunAfter=true)
-    setImmediate(() => {
-      try { autoUpdater.quitAndInstall(true, true); } catch (e) {
-        console.error('[updater] quitAndInstall failed:', e);
+      updateState.dialogOpen = false;
+      if (response === 0) {
+        updateState.downloading = true;
+        w.webContents.send('update:downloading');
+        autoUpdater.downloadUpdate().catch((err) => {
+          updateState.downloading = false;
+          w.webContents.send('update:error', String((err && err.message) || err));
+          dialog.showErrorBox('업데이트 실패', String((err && err.message) || err));
+        });
       }
     });
-  });
 
-  autoUpdater.on('error', (err) => {
-    console.error('[updater] error:', err);
-    win.webContents.send('update:error', String((err && err.message) || err));
-  });
+    autoUpdater.on('update-not-available', () => {
+      console.log('[updater] 이미 최신 버전입니다');
+    });
 
-  // 앱을 열자마자 업데이트 확인
-  autoUpdater.checkForUpdates().catch((err) => {
-    console.error('[updater] checkForUpdates failed:', err);
-  });
+    autoUpdater.on('download-progress', (p) => {
+      const w = BrowserWindow.getAllWindows()[0];
+      if (w) w.webContents.send('update:progress', {
+        percent: p.percent || 0,
+        transferred: p.transferred || 0,
+        total: p.total || 0
+      });
+    });
+
+    autoUpdater.on('update-downloaded', () => {
+      const w = BrowserWindow.getAllWindows()[0];
+      if (w) w.webContents.send('update:ready');
+      // 조용히 설치(isSilent=true) + 설치 후 자동 재실행(isForceRunAfter=true)
+      setImmediate(() => {
+        try { autoUpdater.quitAndInstall(true, true); } catch (e) {
+          console.error('[updater] quitAndInstall failed:', e);
+        }
+      });
+    });
+
+    autoUpdater.on('error', (err) => {
+      console.error('[updater] error:', err);
+      updateState.downloading = false;
+      const w = BrowserWindow.getAllWindows()[0];
+      if (w) w.webContents.send('update:error', String((err && err.message) || err));
+    });
+  }
+
+  // 앱을 열자마자 1회 + 이후 15분마다 자동 재확인
+  checkForUpdatesNow();
+  if (updateTimer) clearInterval(updateTimer);
+  updateTimer = setInterval(checkForUpdatesNow, 15 * 60 * 1000);
 }
 
 ipcMain.handle('dialog:pickFiles', async () => {
@@ -341,6 +369,8 @@ if (!gotTheLock) {
       win.show();
       win.focus();
     }
+    // 사용자가 "다시 실행"을 시도한 것이므로 업데이트도 재확인
+    checkForUpdatesNow();
   });
 
   app.whenReady().then(() => {

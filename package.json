@@ -1,6 +1,6 @@
 {
   "name": "nega-converter",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "이미지/영상을 화질 손상 없이 네거티브로 변환",
   "main": "main.js",
   "author": "Studio Freewillusion",
